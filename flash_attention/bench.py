@@ -3,9 +3,13 @@ import nvtx
 import torch
 from torch.nn import functional as F
 from torch.utils.cpp_extension import load
+import time
 
+print("Loading the cuda kernel as a python module ...")
+start_time = time.time()
 # Load the CUDA kernel as a python module
 custom_flash_attention = load(name='custom_flash_attention', sources=['main.cpp', 'flash.cu'], extra_cuda_cflags=['-O2'])
+print("Extention load time: ", time.time() - start_time)
 
 # Use small model params, otherwise slower than manual attention. See caveats in README.
 batch_size = 16
@@ -28,6 +32,7 @@ def naiive_attn(q, k, v):
     return y
 
 # with torch.autograd.profiler.profile(use_cuda=True) as prof:
+print("Running naiive attention")
 with nvtx.annotate("naiive", color='yellow'):
     manual_result = naiive_attn(q, k, v)
 # print(prof.key_averages().table(sort_by='cuda_time_total', row_limit=10))
