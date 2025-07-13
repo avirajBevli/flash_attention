@@ -5,11 +5,29 @@ from torch.nn import functional as F
 from torch.utils.cpp_extension import load
 import time
 
-print("Loading the cuda kernel as a python module ...")
+# avoid torch+GPU weird errors if torch does not find GPU!
+assert torch.cuda.is_available()
+
+import sys
+# print("SYS PATH: ", sys.path, "\n")
+print("Python executable being used:", sys.executable, "\n")
+
+# Have to make sure that the .so file is compiled first! 
 start_time = time.time()
-# Load the CUDA kernel as a python module
-custom_flash_attention = load(name='custom_flash_attention', sources=['main.cpp', 'flash.cu'], extra_cuda_cflags=['-O2'])
-print("Extention load time: ", time.time() - start_time)
+import importlib.util
+import sys
+import os
+module_path = os.path.expanduser(
+    '~/.cache/torch_extensions/py312_cu126/custom_flash_attention/custom_flash_attention.so'
+)
+spec = importlib.util.spec_from_file_location("custom_flash_attention", module_path)
+custom_flash_attention = importlib.util.module_from_spec(spec)
+sys.modules["custom_flash_attention"] = custom_flash_attention
+spec.loader.exec_module(custom_flash_attention)
+print(" =========== Extention load time: ", time.time() - start_time)
+
+
+
 
 # Use small model params, otherwise slower than manual attention. See caveats in README.
 batch_size = 16

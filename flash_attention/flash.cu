@@ -8,6 +8,7 @@ __global__ void forward_kernel(
         const int Bc, const int Br, const float softmax_scale,
         float* l, float *m, float* O
 ) {
+    // this is me changing the source code!
     int tx = threadIdx.x;
     int bx = blockIdx.x; int by = blockIdx.y;  // batch and head index
 
@@ -113,7 +114,7 @@ torch::Tensor forward(torch::Tensor Q, torch::Tensor K, torch::Tensor V) {
     const int sram_size = (3 * Bc * d * sizeof(float)) + (Bc * Br * sizeof(float));
     int max_sram_size;
     cudaDeviceGetAttribute(&max_sram_size, cudaDevAttrMaxSharedMemoryPerBlock, 0);
-    printf("Max shared memory: %d, requested shared memory: %d \\n", max_sram_size, sram_size);
+    printf("Max shared memory: %d, requested shared memory: %d \n ", max_sram_size, sram_size);
 
     
     // computation of each block is independent of each other (head-wise independence!)
@@ -135,7 +136,6 @@ torch::Tensor forward(torch::Tensor Q, torch::Tensor K, torch::Tensor V) {
         N, d, Tc, Tr, Bc, Br, softmax_scale,
         l_ptr, m_ptr, o_ptr
     );
-    // std::cout<<" \n \n ======== DONE ======= \n \n"<<std::endl;
-
+    
     return O;
 }
