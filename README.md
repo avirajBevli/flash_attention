@@ -1,2 +1,4 @@
-# Want to run benchmarking?:  $ ./run_bench.sh
-# want to run profling?:      $ ./run_profile.sh
+| Task                  | Command            |
+|-----------------------|--------------------|
+| Run benchmarking      | `./run_bench.sh`   |
+| Run profiling         | `./run_profile.sh` |
